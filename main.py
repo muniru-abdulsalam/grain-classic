@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import streamlit as st
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from streamlit_option_menu import option_menu
-from keras.preprocessing.image import img_to_array
+from tensorflow.keras.utils import img_to_array
+
 
 # === Streamlit Config ===
 st.set_page_config(page_title="Dashboard", layout="wide")
