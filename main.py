@@ -9,18 +9,11 @@ from tensorflow.keras.models import load_model
 from streamlit_option_menu import option_menu
 from tensorflow.keras.utils import img_to_array
 
-
 # === Streamlit Config ===
 st.set_page_config(page_title="Dashboard", layout="wide")
 st.sidebar.image("assets/logo.png", caption='WELCOME')
 
-# === Load Both Models ===
-# MILLET_MODEL_PATH = r"C:\Users\HP\OneDrive\Desktop\FINAL\model_checkpoint_6.h5"
-# MAIZE_MODEL_PATH = r"C:\Users\HP\OneDrive\Desktop\FINAL\maize_millet_model_vgg16_2.h5"
-
-# millet_model = load_model(MILLET_MODEL_PATH, compile=False)
-# maize_model = load_model(MAIZE_MODEL_PATH, compile=False)
-
+# === Model Setup ===
 MODEL_DIR = "models"
 MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
 MAIZE_ID = "1khpZJO5MI-RB8sKhUHAA_-fMaSNfSkaH"
@@ -28,27 +21,34 @@ MAIZE_ID = "1khpZJO5MI-RB8sKhUHAA_-fMaSNfSkaH"
 MILLET_PATH = os.path.join(MODEL_DIR, "millet_model.h5")
 MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model.h5")
 
-# === Ensure model directory exists ===
-if not os.path.exists(MODEL_DIR):
-    os.makedirs(MODEL_DIR)
+# Ensure model directory exists
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-# === Download models if not already present ===
+# Download models if not present
 if not os.path.exists(MILLET_PATH):
     gdown.download(f"https://drive.google.com/uc?id={MILLET_ID}", MILLET_PATH, quiet=False)
 
 if not os.path.exists(MAIZE_PATH):
     gdown.download(f"https://drive.google.com/uc?id={MAIZE_ID}", MAIZE_PATH, quiet=False)
 
-# === Load models ===
+# Load Millet Model
 millet_model = load_model(MILLET_PATH, compile=False)
-maize_model = load_model(MAIZE_PATH, compile=False)
 
-# === Class Mappings ===
+# Load Maize Model with custom activation support
+try:
+    from tensorflow.keras.utils import get_custom_objects
+    from tensorflow.keras.activations import swish
+    get_custom_objects().update({'swish': swish})
+    maize_model = load_model(MAIZE_PATH, compile=False)
+except Exception as e:
+    st.error(f"Failed to load maize model: {e}")
+    maize_model = None
+
+# Class Mappings
 millet_mappings = {0: 'Finger millet', 1: 'Pearl millet'}
 maize_mappings = {0: 'Bihilifa', 1: 'SanzalSima', 2: 'WangDataa'}
 
-# === Select Model Type ===
-# === Select Model Type ===
+# Model Selection
 model_type = st.sidebar.radio("Select Model", options=["Millet", "Maize"])
 st.sidebar.markdown("ℹ️ **Millet**: Finger & Pearl millet  \n**Maize**: Bihilifa, SanzalSima, WangDataa")
 
@@ -57,10 +57,11 @@ if model_type == "Millet":
     mappings = millet_mappings
     target_size = (600, 600)
 else:
+    if maize_model is None:
+        st.stop()  # Prevent further execution
     model = maize_model
     mappings = maize_mappings
     target_size = (224, 224)
-
 
 # === Upload Single Image ===
 def Upload():
@@ -93,12 +94,7 @@ def Upload():
             predicted_label = mappings[predicted_class]
             st.success(f"Predicted Class: **{predicted_label}**  \n Confidence: **{confidence:.2f}%**")
 
-
-
 # === Upload Multiple Images ===
-
-import pandas as pd
-
 def Uploads():
     st.title("Upload Multiple Images")
     st.markdown("---")
@@ -174,9 +170,6 @@ def Uploads():
                     file_name='prediction_results.csv',
                     mime='text/csv'
                 )
-
-
-
 
 # === Home Page ===
 def Home():
