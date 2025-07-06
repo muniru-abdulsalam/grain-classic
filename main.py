@@ -38,11 +38,15 @@ millet_model = load_model(MILLET_PATH, compile=False)
 try:
     from tensorflow.keras.utils import get_custom_objects
     from tensorflow.keras.activations import swish
+    from keras.saving.legacy import load_model as legacy_load_model
+
     get_custom_objects().update({'swish': swish})
-    maize_model = load_model(MAIZE_PATH, compile=False)
+    maize_model = legacy_load_model(MAIZE_PATH, compile=False)
+
 except Exception as e:
     st.error(f"Failed to load maize model: {e}")
     maize_model = None
+
 
 # Class Mappings
 millet_mappings = {0: 'Finger millet', 1: 'Pearl millet'}
