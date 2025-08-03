@@ -9,6 +9,20 @@ from tensorflow.keras.models import load_model
 from streamlit_option_menu import option_menu
 from tensorflow.keras.utils import img_to_array
 
+import streamlit as st
+import tensorflow as tf
+
+# Display TensorFlow and Keras versions
+st.write(f"TensorFlow version: {tf.__version__}")
+st.write(f"Keras version (from TF): {tf.keras.__version__}")
+
+# Optionally, check standalone Keras (if installed)
+try:
+    import keras
+    st.write(f"Standalone Keras version: {keras.__version__}")
+except ImportError:
+    st.write("Standalone Keras not installed")
+
 # === Streamlit Config ===
 st.set_page_config(page_title="Dashboard", layout="wide")
 st.sidebar.image("assets/logo.png", caption='WELCOME')
