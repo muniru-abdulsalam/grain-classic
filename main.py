@@ -10,15 +10,6 @@ from streamlit_option_menu import option_menu
 from tensorflow.keras.utils import img_to_array
 
 
-import streamlit as st
-import tensorflow as tf
-import keras
-
-st.title("TensorFlow and Keras Version Checker")
-
-st.write("### Installed Versions")
-st.write(f"**TensorFlow version:** {tf.__version__}")
-st.write(f"**Keras version:** {keras.__version__}")
 
 # === Streamlit Config ===
 st.set_page_config(page_title="Dashboard", layout="wide")
