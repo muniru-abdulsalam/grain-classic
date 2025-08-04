@@ -18,7 +18,7 @@ st.sidebar.image("assets/logo.png", caption='WELCOME')
 # === Model Setup ===
 MODEL_DIR = "models"
 MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
-MAIZE_ID = "1dc2kFJ7uALpsS34kWfU-mBmmhdYp8hdM"
+MAIZE_ID = "1vsaxsqocmrFmetxGMQzIpa1TCblmxqkK"
 
 MILLET_PATH = os.path.join(MODEL_DIR, "millet_model.h5")
 MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model.h5")
