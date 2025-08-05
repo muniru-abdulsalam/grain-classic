@@ -18,10 +18,10 @@ st.sidebar.image("assets/logo.png", caption='WELCOME')
 # === Model Setup ===
 MODEL_DIR = "models"
 MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
-MAIZE_ID = "1VG2GQPVSysT7cP3v7MZrMsrxacl1ag6U"
+MAIZE_ID = "17Fabo89l4IUjFdAKd8AiY-APnSO3ov27"
 
 MILLET_PATH = os.path.join(MODEL_DIR, "millet_model.h5")
-MAIZE_PATH = os.path.join(MODEL_DIR, "main_maize_2002a.h5")
+MAIZE_PATH = os.path.join(MODEL_DIR, "main_maize_2002a.keras")
 
 # Ensure model directory exists
 os.makedirs(MODEL_DIR, exist_ok=True)
