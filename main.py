@@ -10,6 +10,14 @@ from streamlit_option_menu import option_menu
 from tensorflow.keras.utils import img_to_array
 
 
+import tensorflow as tf
+import keras
+
+
+print("TensorFlow:", tf.__version__)
+print("Keras:", keras.__version__)
+print("NumPy:", np.__version__)
+
 
 # === Streamlit Config ===
 st.set_page_config(page_title="Dashboard", layout="wide")
