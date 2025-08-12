@@ -26,10 +26,10 @@ st.sidebar.image("assets/logo.png", caption='WELCOME')
 # === Model Setup ===
 MODEL_DIR = "models"
 MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
-MAIZE_ID = "1CsBAXYDO6gdxV6NHfdPv8vWqjNHXBo3n"
+MAIZE_ID = "1ZSuW7UGHe_33M9O-LPygE1sTIF1iDZYV"
 
 MILLET_PATH = os.path.join(MODEL_DIR, "model_checkpoint_6.h5")
-MAIZE_PATH = os.path.join(MODEL_DIR, "main_maize2002a.h5")
+MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model_local.h5")
 
 # Ensure model directory exists
 os.makedirs(MODEL_DIR, exist_ok=True)
