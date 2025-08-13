@@ -132,50 +132,26 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# Google Drive Model IDs
-# =========================
-MODEL_IDS = {
-    'millet': '1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-',
-    'maize': '1ZSuW7UGHe_33M9O-LPygE1sTIF1iDZYV'
-}
+# === Model Setup ===
+MODEL_DIR = "models"
+MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
+MAIZE_ID = "1ZSuW7UGHe_33M9O-LPygE1sTIF1iDZYV"
 
-# =========================
-# Custom activation support
-# =========================
-get_custom_objects().update({'swish': swish})
+MILLET_PATH = os.path.join(MODEL_DIR, "model_checkpoint_6.h5")
+MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model_local.h5")
 
-# =========================
-# Google Drive Download Function
-# =========================
-def download_model_from_drive(file_id, destination):
-    """Download a model from Google Drive using file ID"""
-    url = f"https://drive.google.com/uc?id={file_id}&export=download"
-    
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        
-        # Handle potential redirect for large files
-        if 'download_warning' in response.text:
-            # Extract the confirmation token
-            for line in response.text.split('\n'):
-                if 'confirm=' in line:
-                    token = line.split('confirm=')[1].split('&')[0]
-                    url = f"https://drive.google.com/uc?export=download&confirm={token}&id={file_id}"
-                    response = requests.get(url, stream=True)
-                    break
-        
-        # Save the file
-        with open(destination, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        
-        return True
-    except Exception as e:
-        st.error(f"Error downloading model: {str(e)}")
-        return False
+# Ensure model directory exists
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+# Download models if not present
+if not os.path.exists(MILLET_PATH):
+    gdown.download(f"https://drive.google.com/uc?id={MILLET_ID}", MILLET_PATH, quiet=False)
+
+if not os.path.exists(MAIZE_PATH):
+    gdown.download(f"https://drive.google.com/uc?id={MAIZE_ID}", MAIZE_PATH, quiet=False)
+
+# Load Millet Model
+millet_model = load_model(MILLET_PATH, compile=False)
 
 # =========================
 # Load Models with Download
