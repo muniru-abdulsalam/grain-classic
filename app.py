@@ -268,7 +268,7 @@ with st.sidebar:
     """)
     
     st.markdown("---")
-    st.markdown("###About the Models")
+    st.markdown("About the Models")
     st.markdown("""
     Our AI models are trained on thousands of grain images to accurately classify Ghanaian millet and maize varieties. The models use deep learning techniques to analyze visual features and provide reliable predictions.
     """)
@@ -347,7 +347,7 @@ with tab1:
                     """, unsafe_allow_html=True)
                     
                 else:
-                    st.error("❌ Millet model is not available. Please check the model file path.")
+                    st.error("Millet model is not available. Please check the model file path.")
         
         # Summary section for multiple files
         if len(uploaded_files) > 1 and models['millet']:
