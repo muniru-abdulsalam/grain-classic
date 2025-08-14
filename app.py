@@ -1,15 +1,38 @@
 import os
-import gdown
 import streamlit as st
 from PIL import Image
 import numpy as np
-import requests
-import tempfile
 from tensorflow.keras.models import load_model
 from tensorflow.keras.utils import get_custom_objects
 from tensorflow.keras.activations import swish
 import plotly.express as px
 import pandas as pd
+import gdown # New library to download from Google Drive
+
+# =========================
+# File Paths for Models
+# =========================
+# Google Drive IDs for the models
+MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
+MAIZE_ID = "1ZSuW7UGHe_33M9O-LPygE1sTIF1iDZYV"
+
+# Local paths to save the downloaded models
+MODEL_DIR = "models"
+os.makedirs(MODEL_DIR, exist_ok=True)
+MILLET_PATH = os.path.join(MODEL_DIR, "model_checkpoint_6.h5")
+MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model_local.h5")
+
+# Function to download models from Google Drive
+def download_model_from_gdrive(file_id, output_path):
+    if not os.path.exists(output_path):
+        st.info(f"Downloading model... this may take a moment.")
+        try:
+            gdown.download(id=file_id, output=output_path, quiet=False)
+            return True
+        except Exception as e:
+            st.error(f"Error downloading model: {e}")
+            return False
+    return True
 
 # =========================
 # Page Configuration
@@ -121,75 +144,36 @@ st.markdown("""
         border-left: 4px solid #2196f3;
         margin: 0.5rem 0;
     }
-    
-    .download-status {
-        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
-        color: #e65100;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #ff9800;
-        margin: 0.5rem 0;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# === Model Setup ===
-MODEL_DIR = "models"
-MILLET_ID = "1NMYkFxQRSOoZLa3BkANfAN3Rk7vQNJw-"
-MAIZE_ID = "1ZSuW7UGHe_33M9O-LPygE1sTIF1iDZYV"
-
-MILLET_PATH = os.path.join(MODEL_DIR, "model_checkpoint_6.h5")
-MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model_local.h5")
-
-# Ensure model directory exists
-os.makedirs(MODEL_DIR, exist_ok=True)
-
-# Download models if not present
-if not os.path.exists(MILLET_PATH):
-    gdown.download(f"https://drive.google.com/uc?id={MILLET_ID}", MILLET_PATH, quiet=False)
-
-if not os.path.exists(MAIZE_PATH):
-    gdown.download(f"https://drive.google.com/uc?id={MAIZE_ID}", MAIZE_PATH, quiet=False)
-
-# Load Millet Model
-millet_model = load_model(MILLET_PATH, compile=False)
+# =========================
+# Custom activation support
+# =========================
+get_custom_objects().update({'swish': swish})
 
 # =========================
-# Load Models with Download
+# Load Models with Progress
 # =========================
 @st.cache_resource
-def load_models_from_cloud():
-    """Download and load ML models from Google Drive with caching"""
+def load_models():
+    """Load ML models with caching for better performance"""
     models = {'millet': None, 'maize': None}
     
-    # Create temporary directory for models
-    temp_dir = tempfile.mkdtemp()
-    
-    with st.spinner('🌐 Downloading AI models from cloud...'):
-        progress_bar = st.progress(0)
+    with st.spinner('Loading AI models...'):
+        # Check and download models
+        millet_downloaded = download_model_from_gdrive(MILLET_ID, MILLET_PATH)
+        maize_downloaded = download_model_from_gdrive(MAIZE_ID, MAIZE_PATH)
         
-        for idx, (model_name, file_id) in enumerate(MODEL_IDS.items()):
-            st.info(f"📥 Downloading {model_name} model...")
-            
-            model_path = os.path.join(temp_dir, f"{model_name}_model.h5")
-            
-            if download_model_from_drive(file_id, model_path):
-                try:
-                    models[model_name] = load_model(model_path, compile=False)
-                    st.success(f"✅ {model_name.title()} model loaded successfully!")
-                except Exception as e:
-                    st.error(f"❌ Error loading {model_name} model: {str(e)}")
-            else:
-                st.error(f"❌ Failed to download {model_name} model")
-            
-            progress_bar.progress((idx + 1) / len(MODEL_IDS))
+        if millet_downloaded:
+            models['millet'] = load_model(MILLET_PATH, compile=False)
         
-        progress_bar.empty()
-    
+        if maize_downloaded:
+            models['maize'] = load_model(MAIZE_PATH, compile=False)
+            
     return models
 
-# Load models
-models = load_models_from_cloud()
+models = load_models()
 
 # =========================
 # Class Information
@@ -268,35 +252,26 @@ with st.sidebar:
     if models['millet']:
         st.success("✅ Millet Model: Ready")
     else:
-        st.error("❌ Millet Model: Not Available")
+        st.error("❌ Millet Model: Not Found")
     
     if models['maize']:
         st.success("✅ Maize Model: Ready")
     else:
-        st.error("❌ Maize Model: Not Available")
-    
-    st.markdown("---")
-    st.markdown("### 🌐 Cloud Features")
-    st.markdown("""
-    - **Auto-download**: Models downloaded from Google Drive
-    - **No local storage**: No need for local model files
-    - **Always updated**: Latest models from cloud
-    - **Portable**: Works on any device with internet
-    """)
+        st.error("❌ Maize Model: Not Found")
     
     st.markdown("---")
     st.markdown("### 📖 How to Use")
     st.markdown("""
     1. **Choose a grain type** (Millet or Maize)
-    2. **Upload images** (single or multiple)
-    3. **View predictions** with confidence scores
-    4. **Analyze batch results** for multiple images
+    2. **Upload an image** of the grain
+    3. **View the prediction** with confidence scores
+    4. **Learn more** about the identified variety
     """)
     
     st.markdown("---")
     st.markdown("### 🔬 About the Models")
     st.markdown("""
-    Our AI models are trained on thousands of grain images to accurately classify Ghanaian millet and maize varieties. Models are stored securely in Google Drive and downloaded automatically.
+    Our AI models are trained on thousands of grain images to accurately classify Ghanaian millet and maize varieties. The models use deep learning techniques to analyze visual features and provide reliable predictions.
     """)
 
 # =========================
@@ -306,7 +281,6 @@ st.markdown("""
 <div class="main-header">
     <h1>🌾 Ghanaian Grain Variety Classifier</h1>
     <p>AI-powered identification of millet and maize varieties</p>
-    <small>🌐 Cloud-powered with Google Drive integration</small>
 </div>
 """, unsafe_allow_html=True)
 
@@ -340,7 +314,7 @@ with tab1:
             
             with col1:
                 image = Image.open(uploaded_file)
-                st.image(image, caption=f"Uploaded Image {idx + 1}", use_column_width=True)
+                st.image(image, caption=f"Uploaded Image {idx + 1}", use_container_width=True)
             
             with col2:
                 if models['millet']:
@@ -374,7 +348,7 @@ with tab1:
                     """, unsafe_allow_html=True)
                     
                 else:
-                    st.error("❌ Millet model is not available. Please refresh the page to retry download.")
+                    st.error("❌ Millet model is not available. Please check the model file path.")
         
         # Summary section for multiple files
         if len(uploaded_files) > 1 and models['millet']:
@@ -407,17 +381,9 @@ with tab1:
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("""
-                <div class="variety-stats">
-                    <h4>Variety Distribution:</h4>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown("**Variety Distribution:**")
                 for variety, count in variety_counts.items():
-                    st.markdown(f"""
-                    <div class="variety-stats">
-                        • {variety}: {count} images
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.write(f"• {variety}: {count} images")
             
             with col2:
                 # Create pie chart for variety distribution
@@ -455,7 +421,7 @@ with tab2:
             
             with col1:
                 image = Image.open(uploaded_file)
-                st.image(image, caption=f"Uploaded Image {idx + 1}", use_column_width=True)
+                st.image(image, caption=f"Uploaded Image {idx + 1}", use_container_width=True)
             
             with col2:
                 if models['maize']:
@@ -489,7 +455,7 @@ with tab2:
                     """, unsafe_allow_html=True)
                     
                 else:
-                    st.error("❌ Maize model is not available. Please refresh the page to retry download.")
+                    st.error("❌ Maize model is not available. Please check the model file path.")
         
         # Summary section for multiple files
         if len(uploaded_files) > 1 and models['maize']:
@@ -522,17 +488,9 @@ with tab2:
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("""
-                <div class="variety-stats">
-                    <h4>Variety Distribution:</h4>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown("**Variety Distribution:**")
                 for variety, count in variety_counts.items():
-                    st.markdown(f"""
-                    <div class="variety-stats">
-                        • {variety}: {count} images
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.write(f"• {variety}: {count} images")
             
             with col2:
                 # Create pie chart for variety distribution
@@ -578,30 +536,11 @@ with tab3:
     st.markdown("---")
     st.markdown("### 🔬 Technical Information")
     st.markdown("""
-    <div class="info-card">
-        <h4>Model Specifications</h4>
-        <ul>
-            <li><strong>Millet Model:</strong> Trained on 600x600 pixel images</li>
-            <li><strong>Maize Model:</strong> Trained on 224x224 pixel images</li>
-            <li><strong>Framework:</strong> TensorFlow/Keras with deep learning</li>
-            <li><strong>Storage:</strong> Google Drive cloud storage</li>
-            <li><strong>Download:</strong> Automatic model downloading on startup</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("### 🌐 Cloud Integration Benefits")
-    st.markdown("""
-    <div class="summary-card">
-        <h4>Why Cloud Storage?</h4>
-        <ul>
-            <li><strong>Accessibility:</strong> Models available anywhere with internet</li>
-            <li><strong>Updates:</strong> Easy to update models without redistributing code</li>
-            <li><strong>Portability:</strong> No need to manage large local files</li>
-            <li><strong>Reliability:</strong> Google Drive's robust infrastructure</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
+    - **Millet Model**: Trained on 600x600 pixel images
+    - **Maize Model**: Trained on 224x224 pixel images
+    - **Framework**: TensorFlow/Keras with deep learning
+    - **Accuracy**: Models achieve high accuracy on validation datasets
+    """)
 
 # =========================
 # Footer
@@ -609,7 +548,6 @@ with tab3:
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>🌾 Ghanaian Grain Variety Classifier | Powered by AI & Cloud Technology</p>
-    <p>🌐 Models hosted on Google Drive for global accessibility</p>
+    <p>🌾 Ghanaian Grain Variety Classifier | Powered by AI & Machine Learning</p>
 </div>
 """, unsafe_allow_html=True)
