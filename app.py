@@ -25,7 +25,6 @@ MAIZE_PATH = os.path.join(MODEL_DIR, "maize_model_local.h5")
 # Function to download models from Google Drive
 def download_model_from_gdrive(file_id, output_path):
     if not os.path.exists(output_path):
-        st.info(f"Downloading model... this may take a moment.")
         try:
             gdown.download(id=file_id, output=output_path, quiet=False)
             return True
@@ -250,14 +249,14 @@ with st.sidebar:
     st.markdown("### 📊 Model Status")
     
     if models['millet']:
-        st.success("✅ Millet Model: Ready")
+        st.success("Millet Model: Ready")
     else:
-        st.error("❌ Millet Model: Not Found")
+        st.error("Millet Model: Not Found")
     
     if models['maize']:
-        st.success("✅ Maize Model: Ready")
+        st.success("Maize Model: Ready")
     else:
-        st.error("❌ Maize Model: Not Found")
+        st.error("Maize Model: Not Found")
     
     st.markdown("---")
     st.markdown("### 📖 How to Use")
@@ -269,7 +268,7 @@ with st.sidebar:
     """)
     
     st.markdown("---")
-    st.markdown("### 🔬 About the Models")
+    st.markdown("###About the Models")
     st.markdown("""
     Our AI models are trained on thousands of grain images to accurately classify Ghanaian millet and maize varieties. The models use deep learning techniques to analyze visual features and provide reliable predictions.
     """)
