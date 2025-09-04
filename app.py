@@ -313,7 +313,7 @@ with tab1:
             
             with col1:
                 image = Image.open(uploaded_file)
-                st.image(image, caption=f"Uploaded Image {idx + 1}", use_container_width=True)
+                st.image(image, caption=f"Uploaded Image {idx + 1}", use_column_width=True)
             
             with col2:
                 if models['millet']:
