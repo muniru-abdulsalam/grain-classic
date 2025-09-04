@@ -313,7 +313,7 @@ with tab1:
             
             with col1:
                 image = Image.open(uploaded_file)
-                st.image(image, caption=f"Uploaded Image {idx + 1}", use_column_width=True)
+                st.image(image, caption=f"Uploaded Image {idx + 1}", use_container_width=True)
             
             with col2:
                 if models['millet']:
@@ -336,7 +336,7 @@ with tab1:
                     # Show confidence chart
                     fig = create_confidence_chart(pred_data)
                     fig.update_layout(title=f'Confidence Scores - Image {idx + 1}')
-                    st.plotly_chart(fig, use_column_width=True)
+                    st.plotly_chart(fig, use_container_width=True)
                     
                     # Show variety information
                     st.markdown(f"""
@@ -373,7 +373,7 @@ with tab1:
             
             # Display summary table
             summary_df = pd.DataFrame(summary_data)
-            st.dataframe(summary_df, use_column_width=True)
+            st.dataframe(summary_df, use_container_width=True)
             
             # Summary statistics
             variety_counts = summary_df['Predicted Variety'].value_counts()
@@ -391,7 +391,7 @@ with tab1:
                     names=variety_counts.index,
                     title="Variety Distribution"
                 )
-                st.plotly_chart(fig_pie, use_column_width=True)
+                st.plotly_chart(fig_pie, use_container_width=True)
 
 # =========================
 # Maize Classification Tab
@@ -420,7 +420,7 @@ with tab2:
             
             with col1:
                 image = Image.open(uploaded_file)
-                st.image(image, caption=f"Uploaded Image {idx + 1}", use_column_width=True)
+                st.image(image, caption=f"Uploaded Image {idx + 1}", use_container_width=True)
             
             with col2:
                 if models['maize']:
@@ -443,7 +443,7 @@ with tab2:
                     # Show confidence chart
                     fig = create_confidence_chart(pred_data)
                     fig.update_layout(title=f'Confidence Scores - Image {idx + 1}')
-                    st.plotly_chart(fig, use_column_width=True)
+                    st.plotly_chart(fig, use_container_width=True)
                     
                     # Show variety information
                     st.markdown(f"""
@@ -480,7 +480,7 @@ with tab2:
             
             # Display summary table
             summary_df = pd.DataFrame(summary_data)
-            st.dataframe(summary_df, use_column_width=True)
+            st.dataframe(summary_df, use_container_width=True)
             
             # Summary statistics
             variety_counts = summary_df['Predicted Variety'].value_counts()
@@ -498,7 +498,7 @@ with tab2:
                     names=variety_counts.index,
                     title="Variety Distribution"
                 )
-                st.plotly_chart(fig_pie, use_column_width=True)
+                st.plotly_chart(fig_pie, use_container_width=True)
 
 # =========================
 # Learn More Tab
